@@ -1,0 +1,42 @@
+#Run NVIDIA Container Toolkit withn Docker runtime
+sudo nvidia-ctk runtime configure --runtime=docker && sudo systemctl restart docker
+
+#Start Minikue
+minikube start --driver docker --container-runtime docker --gpus all
+
+#Verify if GPU is detected on the host level
+$ nvidia-smi
+Sun Aug 18 18:22:27 2024
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.107.02             Driver Version: 550.107.02     CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Quadro RTX 6000                Off |   00000000:00:02.0 Off |                  Off |
+| 33%   29C    P8             13W /  260W |       1MiB /  24576MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+#Verify if GPU is detected on the K8s level
+$ kubectl describe nodes | grep -i nvidia
+nvidia.com/gpu:     1
+nvidia.com/gpu:     1
+kube-system         nvidia-device-plugin-daemonset-v27fm    0 (0%)        0 (0%)      0 (0%)           0 (0%)         4m52s
+nvidia.com/gpu      1           1
+
+$ kubectl get nodes -o yaml | grep -i nvidia
+nvidia.com/gpu: "1"
+nvidia.com/gpu: "1"
+- nvidia/digits@sha256:9b37921080efcedb93e1cxxxxxxxxxxx
+- nvidia/digits:6.0
+- nvcr.io/nvidia/k8s-device-plugin@sha256:1aff0e9f0759758f87cb158d78241472af3a76cdcxxxxxxx
